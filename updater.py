@@ -1,7 +1,6 @@
 import subprocess
 import os
 import sys
-# import path
 
 class cd:
   """Context manager for changing the current working directory"""
