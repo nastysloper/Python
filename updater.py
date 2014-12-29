@@ -15,7 +15,7 @@ class cd:
   def __exit__(self, etype, value, traceback):
     os.chdir(self.savedPath)
 
-repos = ['one', 'two', 'three']
+repos = ['bt', 'cadence', 'puppetry']
 for repo in repos:
   print "Updating the following repo: %s" % repo
   with cd(repo):
@@ -23,31 +23,29 @@ for repo in repos:
     current = os.path.abspath('.')
     print "current dir is %s" % current
     subprocess.call("ls")
+    task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
+    flag = False
+    for l in task.stdout.readlines():
+      flag = True
+      print "This file is not committed\n  %s" % l.split()[1]
 
+    if flag:
+      print("Please commit, checkout, or stash your changes.")
+    else:
+      print "No changes here!"
+
+print "current dir is %s" % os.getcwd()
 print "exiting!"
 
 sys.exit()
 
-with cd("%s" % (repo)):
-  subprocess.call("ls")
 
-
-print "exited!"
-
-task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
-flag = False
-for l in task.stdout.readlines():
-  flag = True
-  print "This file is not committed. ==> %s" % l.split()[1]
-
-if flag:
-  print("Please commit, checkout, or stash your changes.")
-else:
-  print "pull"
-  fetch = subprocess.Popen(['git', 'fetch'])
-  fetch.communicate([0])
-  merge = subprocess.Popen(['git', 'merge', '--ff-only'])
-  fetch.communicate([0])
+# else:
+#   print "pull"
+#   fetch = subprocess.Popen(['git', 'fetch'])
+#   fetch.communicate([0])
+#   merge = subprocess.Popen(['git', 'merge', '--ff-only'])
+#   fetch.communicate([0])
 
 print "\nNow running cd"
 print "we are in %s" % current
