@@ -4,27 +4,22 @@ import sys
 
 def checkout(file):
   print "in checkout"
-  co = subprocess.Popen(['git', 'checkout', '--', file], stdout=subprocess.PIPE)
-  co.communicate()
+  subprocess.call(['git', 'checkout', '--', file])
 
 def unstage(file):
-  co = subprocess.Popen(['git', 'reset', 'HEAD', file],)
-  co.communicate()
+  subprocess.call(['git', 'reset', 'HEAD', file])
   print "%s unstaged." % file
 
 def stash(file):
-  stash = subprocess.Popen(['git', 'stash'])
-  stash.communicate()
+  subprocess.call(['git', 'stash'])
 
 def commit(file):
   print "Please enter a commit message:"
   message = raw_input()
-  commit = subprocess.Popen(['git', 'commit', '-m', message])
-  commit.communicate()
+  subprocess.call(['git', 'commit', '-m', message])
 
 def add(file):
-  add = subprocess.Popen(['git', 'add', file])
-  add.communicate()
+  subprocess.Popen(['git', 'add', file])
   # print "%s added / updated." % file
   print "yes, stashed %s" % file
 
@@ -32,13 +27,11 @@ def commit(file):
   print "yes, commit %s" % file
 
 def add(file):
-  add = subprocess.Popen(['git', 'add', file], stdout=subprocess.PIPE)
-  add.communicate()
+  subprocess.Popen(['git', 'add', file])
   print "%s added / updated." % file
 
 def manage_untracked_file(file):
-  add = subprocess.Popen(['git', 'add', file], stdout=subprocess.PIPE)
-  add.communicate()
+  subprocess.call(['git', 'add', file])
   print "%s added to the staging area." % file
   print "do you want to (c) commit this file or (s) stash it?"
   print "enter (u) if you would like to undo this change."
@@ -82,6 +75,9 @@ def manage_staged(file):
 status = subprocess.Popen(['git', 'status', '-sb'], stdout=subprocess.PIPE)
 for l in status.stdout.readlines():
   print l.split()
+  print l.split()[0]
+  if (l.split()[0] == "##") and (len(l.split()) > 2):
+    print "Your branch is ahead of origin"
 # check if --ff?
 sys.exit()
 
