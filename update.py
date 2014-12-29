@@ -79,6 +79,12 @@ def manage_staged(file):
   }
   options[command](file)
 
+status = subprocess.Popen(['git', 'status', '-sb'], stdout=subprocess.PIPE)
+for l in status.stdout.readlines():
+  print l.split()
+
+sys.exit()
+
 task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
 flag = False
 for l in task.stdout.readlines():
