@@ -26,6 +26,15 @@ def add(file):
   add = subprocess.Popen(['git', 'add', file])
   add.communicate()
   # print "%s added / updated." % file
+  print "yes, stashed %s" % file
+
+def commit(file):
+  print "yes, commit %s" % file
+
+def add(file):
+  add = subprocess.Popen(['git', 'add', file], stdout=subprocess.PIPE)
+  add.communicate()
+  print "%s added / updated." % file
 
 def manage_untracked_file(file):
   add = subprocess.Popen(['git', 'add', file], stdout=subprocess.PIPE)
@@ -88,6 +97,10 @@ for l in task.stdout.readlines():
   elif status == "AM":
     manage_untracked_changes(file)
     manage_staged(file)
+  elif status == "AA":
+    # AA is unmerged path. Exiting to let user examine diff.
+    status = subprocess.Popen(['git', 'status'])
+    sys.exit()
     
 # print "No changes here!"
 # print "pull"
