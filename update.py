@@ -10,10 +10,13 @@ def checkout(file):
 
 def unstage(file):
   subprocess.call(['git', 'reset', 'HEAD', file])
-  print "%s unstaged." % file
 
 def stash(file):
   subprocess.call(['git', 'stash'])
+
+def add(file):
+  subprocess.Popen(['git', 'add', file])
+  print "%s added / updated." % file
 
 def commit(file):
   print "Please enter a commit message:"
@@ -21,23 +24,18 @@ def commit(file):
   subprocess.call(['git', 'commit', '-m', message])
 
 def add(file):
-  subprocess.Popen(['git', 'add', file])
-  # print "%s added / updated." % file
-  print "yes, stashed %s" % file
-
-def commit(file):
-  print "yes, commit %s" % file
-
-def add(file):
-  subprocess.Popen(['git', 'add', file])
-  print "%s added / updated." % file
+  subprocess.call(['git', 'add', file])
 
 def manage_untracked_file(file):
   subprocess.call(['git', 'add', file])
   print "%s added to the staging area." % file
-  print "do you want to (c) commit this file or (s) stash it?"
-  print "enter (u) if you would like to undo this change."
-  command = raw_input()
+  while True:
+    print "do you want to (c) commit this file or (s) stash it?"
+    print "enter (u) if you would like to undo this change."
+    command = raw_input()
+    if command in {'c', 's', 'u'}:
+      break
+    print "\nI don't recognize %s\n\n" % command
   options = {
     "s" : stash,
     "c" : commit,
@@ -58,6 +56,7 @@ def manage_untracked_changes(file):
     "c" : checkout
   }
   options[command](file)
+  manage_staged(file)
 
 def manage_staged(file):
   while True:
@@ -91,9 +90,12 @@ for l in task.stdout.readlines():
   print status
   if status == "A":
     manage_staged(file)
+  elif status in {'M', 'MM'}:
+    print "this file has changes: %s\n" % file
+    manage_untracked_changes(file)
   elif status == "??":
     print "This file is untracked: %s\n" % file
-    print("Do you want to (i) ignore this file or do you want git to (t) track it?")
+    print "Do you want to (i) ignore this file or do you want git to (t) track it?"
     command = raw_input()
     if command == 't':
       manage_untracked_file(file)
@@ -102,7 +104,7 @@ for l in task.stdout.readlines():
     manage_staged(file)
   elif status == "AA":
     # AA is unmerged path. Exiting to let user examine diff.
-    status = subprocess.Popen(['git', 'status'])
+    subprocess.call(['git', 'status'])
     time.sleep(.5)
     sys.exit()
     
