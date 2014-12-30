@@ -1,6 +1,7 @@
 import subprocess
 import os
 import sys
+import time
 
 def checkout(file):
   print "in checkout"
@@ -77,9 +78,9 @@ for l in status.stdout.readlines():
   print l.split()
   print l.split()[0]
   if (l.split()[0] == "##") and (len(l.split()) > 2):
-    print "Your branch is ahead of origin"
-# check if --ff?
-sys.exit()
+    print "Your branch is ahead of origin. Exiting."
+    time.sleep(.5)
+    sys.exit()
 
 task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
 flag = False
@@ -104,12 +105,9 @@ for l in task.stdout.readlines():
     status = subprocess.Popen(['git', 'status'])
     sys.exit()
     
-# print "No changes here!"
-# print "pull"
-# fetch = subprocess.Popen(['git', 'fetch'])
-# fetch.communicate([0])
-# merge = subprocess.Popen(['git', 'merge', '--ff-only'])
-# fetch.communicate([0])
+print "pull"
+subprocess.call(['git', 'fetch'])
+subprocess.call(['git', 'merge', '--ff-only'])
 
 print "exiting!"
 
