@@ -107,7 +107,6 @@ for l in task.stdout.readlines():
     subprocess.call(['git', 'status'])
     time.sleep(.5)
     sys.exit()
-    
-print "pull"
+
 subprocess.call(['git', 'fetch'])
 subprocess.call(['git', 'merge', '--ff-only'])
