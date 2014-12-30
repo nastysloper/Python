@@ -2,6 +2,7 @@ import subprocess
 import os
 import sys
 import time
+import re
 
 def checkout(file):
   print "in checkout"
@@ -73,24 +74,13 @@ def manage_staged(file):
   }
   options[command](file)
 
-status = subprocess.Popen(['git', 'status', '-sb'], stdout=subprocess.PIPE)
+status = subprocess.Popen(['git', 'status', '--porcelain', '-b'], stdout=subprocess.PIPE)
 for l in status.stdout.readlines():
-  # print l.split()
-  # print l.split()[0]
-  if (l.split()[0] == "##") and (len(l.split()) > 2):
-    print "Your branch is ahead of origin. Exiting."
+  result = re.search('\[ahead.*\]', l)
+  if result:
+    print "Your branch is ahead of origin => %s" % result.group()
     time.sleep(.5)
     sys.exit()
-
-status = subprocess.Popen(['git', 'status', '-z'], stdout=subprocess.PIPE)
-for l in status.stdout.readlines():
-  print l.split()
-  print l.split()[0]
-  print l.split()[1]
-  # if (l.split()[0] == "##") and (len(l.split()) > 2):
-    # print "Your branch is ahead of origin. Exiting."
-time.sleep(.5)
-sys.exit()
 
 task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
 flag = False
@@ -121,5 +111,3 @@ subprocess.call(['git', 'fetch'])
 subprocess.call(['git', 'merge', '--ff-only'])
 
 print "exiting!"
-
-# sys.exit()
