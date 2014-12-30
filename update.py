@@ -73,43 +73,62 @@ def manage_staged(file):
   }
   options[command](file)
 
-status = subprocess.Popen(['git', 'status', '--porcelain', '-b'], stdout=subprocess.PIPE)
-for l in status.stdout.readlines():
-  result = re.search('\[ahead.*\]', l)
-  if result:
-    print "Your branch is ahead of origin => %s" % result.group()
-    time.sleep(.5)
-    sys.exit()
+# It's okay if you haven't pushed commits. Maybe not if you have commits on master, though.
+# status = subprocess.Popen(['git', 'status', '--porcelain', '-b'], stdout=subprocess.PIPE)
+# for l in status.stdout.readlines():
+#   result = re.search('\[ahead.*\]', l)
+#   if result:
+#     print "Your branch is ahead of origin => %s" % result.group()
+#     time.sleep(.5)
+#     sys.exit()
 
-task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
-flag = False
-for l in task.stdout.readlines():
-  flag = True
-  status = l.split()[0]
-  file = l.split()[1]
-  print status
-  if status == "A":
-    manage_staged(file)
-  elif status in {'M', 'MM'}:
-    print "this file has changes: %s\n" % file
-    manage_untracked_changes(file)
-  elif status == "??":
-    print "This file is untracked: %s\n" % file
-    print "Do you want to (i) ignore this file or do you want git to (t) track it?"
-    command = raw_input()
-    if command == 't':
-      manage_untracked_file(file)
-  elif status == "AM":
-    manage_untracked_changes(file)
-    manage_staged(file)
-  elif status == "AA":
-    # AA is unmerged path. Exiting to let user examine diff.
-    subprocess.call(['git', 'status'])
-    time.sleep(.5)
-    sys.exit()
-    
-print "pull"
-subprocess.call(['git', 'fetch'])
-subprocess.call(['git', 'merge', '--ff-only'])
+def check_local_changes():
+  task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
+  flag = False
+  for l in task.stdout.readlines():
+    flag = True
+    status = l.split()[0]
+    file = l.split()[1]
+    print status
+    if status == "A":
+      manage_staged(file)
+    elif status in {'M', 'MM'}:
+      print "this file has changes: %s\n" % file
+      manage_untracked_changes(file)
+    elif status == "??":
+      print "This file is untracked: %s\n" % file
+      print "Do you want to (i) ignore this file or do you want git to (t) track it?"
+      command = raw_input()
+      if command == 't':
+        manage_untracked_file(file)
+    elif status == "AM":
+      manage_untracked_changes(file)
+      manage_staged(file)
+    elif status == "AA":
+      # AA is unmerged path. Exiting to let user examine diff.
+      subprocess.call(['git', 'status'])
+      time.sleep(.5)
+      sys.exit()
+
+def pull():
+  print "pull"
+  subprocess.call(['git', 'fetch'])
+  subprocess.call(['git', 'merge', '--ff-only'])
+
+# Checkout master (if not already there)
+branch = subprocess.Popen(['git', 'branch'], stdout=subprocess.PIPE)
+for l in branch.stdout.readlines():
+  print l
+  master = re.search('master', l)
+  if master:
+    print "Your branch is => %s" % master.group()
+    check_local_changes()
+    pull()
+  else:
+    check_local_changes()
+    pull()
+    subprocess.Popen(['git', 'checkout', 'master'])
+    check_local_changes()
+    pull()
 
 print "exiting!"
