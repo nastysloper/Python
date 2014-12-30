@@ -111,5 +111,3 @@ for l in task.stdout.readlines():
 print "pull"
 subprocess.call(['git', 'fetch'])
 subprocess.call(['git', 'merge', '--ff-only'])
-
-print "exiting!"
