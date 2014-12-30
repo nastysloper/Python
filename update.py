@@ -75,12 +75,22 @@ def manage_staged(file):
 
 status = subprocess.Popen(['git', 'status', '-sb'], stdout=subprocess.PIPE)
 for l in status.stdout.readlines():
-  print l.split()
-  print l.split()[0]
+  # print l.split()
+  # print l.split()[0]
   if (l.split()[0] == "##") and (len(l.split()) > 2):
     print "Your branch is ahead of origin. Exiting."
     time.sleep(.5)
     sys.exit()
+
+status = subprocess.Popen(['git', 'status', '-z'], stdout=subprocess.PIPE)
+for l in status.stdout.readlines():
+  print l.split()
+  print l.split()[0]
+  print l.split()[1]
+  # if (l.split()[0] == "##") and (len(l.split()) > 2):
+    # print "Your branch is ahead of origin. Exiting."
+time.sleep(.5)
+sys.exit()
 
 task = subprocess.Popen(['git', 'status', '--porcelain'], stdout=subprocess.PIPE)
 flag = False
@@ -103,6 +113,7 @@ for l in task.stdout.readlines():
   elif status == "AA":
     # AA is unmerged path. Exiting to let user examine diff.
     status = subprocess.Popen(['git', 'status'])
+    time.sleep(.5)
     sys.exit()
     
 print "pull"
