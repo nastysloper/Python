@@ -111,3 +111,4 @@ subprocess.call(['git', 'fetch'])
 subprocess.call(['git', 'merge', '--ff-only'])
 
 print "exiting!"
+foo
